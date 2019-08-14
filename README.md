@@ -1,10 +1,8 @@
-# {MY_REPO} for Piattaforma Digitale Nazionale Dati (PDND), previously DAF
+# semantic-katalod for Piattaforma Digitale Nazionale Dati (PDND), previously DAF
 
-> Insert here the application logo and badges if present.
+This module is designed to offer support for parsing ontologies and vocabularies, eventually exposing the minimum set of metadata to the other components.
 
-> Insert here warnings if necessary (ie. if this is a not stable version).
-
-> Insert here a brief description of what your repository contains. Insert also links to the last release, the official page, the extended documentation, and other useful external resources.
+[last update: 2018-08-06]
 
 ## What is the PDND (previously DAF)?
 
@@ -12,34 +10,59 @@ PDND stays for "Piattaforma Digitale Nazionale Dati" (the Italian Digital Data P
 
 You can find more informations about the PDND on the official [Digital Transformation Team website](https://teamdigitale.governo.it/it/projects/daf.htm).
 
-## What is {MY_REPO}?
+## What is semantic-katalod?
 
-> Insert here an extended description of the project with informations about context, goals, stakeholders, use cases, and finally the role of the project within the PDND with links to other repositories requiring this code or this code depends on. Embed also screenshots or video if present to give a preview of the application.
+This module is designed to offer support for parsing ontologies and vocabularies, eventually exposing the minimum set of metadata to the other components.
 
-> Insert here informations about files and folders structure, branch model adopted and release policy.
+For simplicity it is designed re-using jersey and swagger with jetty, using RDF4J as the main interface to RDF.
 
-### Tools references *(optional)*
+**NOTE**: the application should be considered an early (alpha) release, as it is still work-in-progress: all the endpoints and functions are still constantly evolving.
 
-This project references the following tools.
+[last update: 2018-08-06]
 
-* [Tool 1](https://link-to-tool-1.com/)
-* [Tool 2](https://link-to-tool-2.com/)
+## How to build and test semantic-katalod
 
-### Project components *(optional)*
+### maven build / install
 
-This project depends by the following components.
+```bash
+mvn clean install
+```
 
-* **Component 1** version X.Y.Z, available [here](https://link-to-your-external-component).
+**CHECK**: in order to use the library as an sbt dependency, we should create a proper naming convention for the artifact, such as: `{artifact}_{scalaVersion}.jar`
 
-* **Component 2** version X.Y.Z, available [here](https://link-to-your-external-component).
+### maven test
 
-## How to install and use {MY_REPO} *(optional)*
+in order to run the application locally after a maven build, for easy testing, we can:
 
-> Insert here a brief documentation to use this project as an end-user (not a developer) if applicable, including pre-requisites and internal and external dependencies. Insert a link to an extended documentation (user manual) if present.
+```bash
+mvn clean package
 
-## How to build and test {MY_REPO}
+# WIN
+java -cp "target/kataLOD-0.0.11.jar;target/libs/*" it.almawave.kb.http.MainHTTP
 
-> Insert here a brief documentation for the developer to build, test and contribute. Insert a link to an extended documentation (developer manual) if present.
+# linux
+java -cp "target/kataLOD-0.0.11.jar:target/libs/*" it.almawave.kb.http.MainHTTP
+```
+
+### dockerization
+
+After the maven artifact was built:
+
+```bash
+mvn clean package
+```
+
+```bash
+sudo docker build . -t katalod:0.0.11
+```
+
+In order to run a new container from the generated build, we can use the following command:
+
+```bash
+sudo docker run -p 7777:7777 katalod:0.0.11
+```
+
+**NOTE**: currently the port `7777` is used as the default port
 
 ## How to contribute
 
