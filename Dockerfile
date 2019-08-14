@@ -1,35 +1,39 @@
-# JAVA
-FROM openjdk:8-jre-alpine
+# BUILD_IMAGE
+FROM maven:3.6-jdk-8-slim as BUILD_IMAGE
 
 ENV VERS=0.0.11
-RUN apk update && apk add maven git
+ENV KATALOD_BUILD /mvn_src
 
-# maven build
-ADD pom.xml mvn_src/pom.xml
-ADD src/ mvn_src/src/
-ADD lib/ mvn_src/lib/
-WORKDIR mvn_src
-RUN mvn clean package -Dmaven.test.skip=true
+RUN mkdir -p $KATALOD_BUILD
 
-# application
-WORKDIR katalod
+COPY pom.xml $KATALOD_BUILD/pom.xml
+COPY src/ $KATALOD_BUILD/src/
+COPY lib/ $KATALOD_BUILD/lib/
 
-ADD conf/ conf/
-ADD src/main/swagger-ui src/main/swagger-ui
-ADD target/libs /usr/share/katalod/lib
-ADD target/kataLOD-${VERS}.jar /usr/share/katalod/kataLOD-${VERS}.jar
-#ADD target/libs /usr/share/katalod/lib
-#ADD target/kataLOD-${VERS}.jar /usr/share/katalod/kataLOD-${VERS}.jar
+RUN mvn -f ${KATALOD_BUILD}/pom.xml package -Dmaven.test.skip=true
 
-RUN mkdir -p /usr/share/katalod
-RUN cp -R /mvn_src/target/libs /usr/share/katalod/lib/
-RUN cp /mvn_src/target/kataLOD-${VERS}.jar /usr/share/katalod/kataLOD-${VERS}.jar
+# APP
+FROM openjdk:8-jre-alpine
 
-ENTRYPOINT ["/usr/bin/java", "-cp", "/usr/share/katalod/lib/*:/usr/share/katalod/kataLOD-${VERS}.jar", "it.almawave.kb.http.MainHTTP"]
-# TODO: disable ADD of local files, enable git clone of remote files
-ADD ontologie-vocabolari-controllati/ ontologie-vocabolari-controllati/
-# RUN git clone https://github.com/italia/daf-ontologie-vocabolari-controllati.git
+RUN apk add dos2unix
 
-ENTRYPOINT /usr/bin/java -cp /usr/share/katalod/lib/*:/usr/share/katalod/kataLOD-${VERS}.jar it.almawave.kb.http.MainHTTP
+ENV KATALOD_HOME /usr/share/katalod
+ENV KATALOD_BUILD /mvn_src
+ENV VERS=0.0.11
+
+RUN mkdir -p $KATALOD_HOME
+
+WORKDIR $KATALOD_HOME
+
+COPY conf/ conf/
+COPY src/main/swagger-ui src/main/swagger-ui
+COPY --from=BUILD_IMAGE ${KATALOD_BUILD}/target/libs ${KATALOD_HOME}/libs
+COPY --from=BUILD_IMAGE ${KATALOD_BUILD}/target/kataLOD-${VERS}.jar ${KATALOD_HOME}/kataLOD.jar
+COPY ontologie-vocabolari-controllati/ ontologie-vocabolari-controllati/
+
+RUN chmod 755 "${KATALOD_HOME}" -R
+RUN find . -type f -print0 | xargs -0 dos2unix > /dev/null
 
 EXPOSE 7777
+
+ENTRYPOINT ["/usr/bin/java", "-cp", "/usr/share/katalod/libs/*:/usr/share/katalod/kataLOD.jar", "it.almawave.kb.http.MainHTTP"]
