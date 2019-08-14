@@ -1,3 +1,17 @@
 ---
+version: '2'
 
-# This file is mandatory if your're building a new container - please remove instead it if it's not needed
+services:
+
+  katalod:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: pdnd-semantic-katalod
+    image: teamdigitale/pdnd-semantic-katalod
+    environment:
+      VERS: "0.0.11"
+    stdin_open: true
+    tty: true
+    ports:
+      - 7777:7777/tcp
