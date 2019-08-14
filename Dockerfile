@@ -28,7 +28,7 @@ WORKDIR $KATALOD_HOME
 COPY conf/ conf/
 COPY src/main/swagger-ui src/main/swagger-ui
 COPY --from=BUILD_IMAGE ${KATALOD_BUILD}/target/libs ${KATALOD_HOME}/libs
-COPY --from=BUILD_IMAGE ${KATALOD_BUILD}/target/kataLOD-${VERS}.jar ${KATALOD_HOME}/kataLOD-${VERS}.jar
+COPY --from=BUILD_IMAGE ${KATALOD_BUILD}/target/kataLOD-${VERS}.jar ${KATALOD_HOME}/kataLOD.jar
 COPY ontologie-vocabolari-controllati/ ontologie-vocabolari-controllati/
 
 RUN chmod 755 "${KATALOD_HOME}" -R
@@ -36,4 +36,4 @@ RUN find . -type f -print0 | xargs -0 dos2unix > /dev/null
 
 EXPOSE 7777
 
-ENTRYPOINT ["/usr/bin/java", "-cp", "/usr/share/katalod/libs/*:/usr/share/katalod/kataLOD-0.0.11.jar", "it.almawave.kb.http.MainHTTP"]
+ENTRYPOINT ["/usr/bin/java", "-cp", "/usr/share/katalod/libs/*:/usr/share/katalod/kataLOD.jar", "it.almawave.kb.http.MainHTTP"]
